@@ -1,0 +1,13 @@
+package com.prep.log;
+
+import java.time.LocalDate;
+
+public record ProblemEntry(String title, String pattern, String difficulty, LocalDate lastReviewed) {
+    public ProblemEntry(String title, String pattern, String difficulty) {
+        this(title, pattern, difficulty, LocalDate.now());
+    }
+
+    public LocalDate nextReview() {
+        return lastReviewed.plusDays(3);
+    }
+}
