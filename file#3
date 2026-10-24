@@ -1,0 +1,51 @@
+
+---
+
+### File 3: `src/main/java/com/prep/log/App.java`
+
+```java
+package com.prep.log;
+
+import java.nio.file.Path;
+import java.util.List;
+
+/**
+ * Usage:
+ *   java -jar dsa-practice-log.jar add "Two Sum" hash-map easy
+ *   java -jar dsa-practice-log.jar list
+ *   java -jar dsa-practice-log.jar due
+ */
+public class App {
+    public static void main(String[] args) throws Exception {
+        Path store = Path.of(System.getProperty("user.home"), ".dsa-practice-log.json");
+        PracticeStore db = new PracticeStore(store);
+        if (args.length == 0) {
+            printHelp();
+            return;
+        }
+        String cmd = args[0];
+        switch (cmd) {
+            case "add" -> {
+                if (args.length < 4) {
+                    throw new IllegalArgumentException("add <title> <pattern> <difficulty>");
+                }
+                db.add(new ProblemEntry(args[1], args[2], args[3]));
+                System.out.println("Saved.");
+            }
+            case "list" -> db.all().forEach(System.out::println);
+            case "due" -> {
+                List<ProblemEntry> due = db.dueForReview();
+                if (due.isEmpty()) {
+                    System.out.println("Nothing due today.");
+                } else {
+                    due.forEach(System.out::println);
+                }
+            }
+            default -> printHelp();
+        }
+    }
+
+    private static void printHelp() {
+        System.out.println("Commands: add <title> <pattern> <difficulty> | list | due");
+    }
+}
