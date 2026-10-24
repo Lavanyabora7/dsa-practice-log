@@ -1,0 +1,53 @@
+package com.prep.log;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class PracticeStore {
+    private final Path file;
+    private final List<ProblemEntry> entries = new ArrayList<>();
+
+    public PracticeStore(Path file) throws IOException {
+        this.file = file;
+        load();
+    }
+
+    public void add(ProblemEntry e) throws IOException {
+        entries.removeIf(x -> x.title().equalsIgnoreCase(e.title()));
+        entries.add(e);
+        save();
+    }
+
+    public List<ProblemEntry> all() {
+        return List.copyOf(entries);
+    }
+
+    public List<ProblemEntry> dueForReview() {
+        LocalDate today = LocalDate.now();
+        return entries.stream()
+                .filter(e -> !e.nextReview().isAfter(today))
+                .collect(Collectors.toList());
+    }
+
+    private void load() throws IOException {
+        if (!Files.exists(file)) return;
+        for (String line : Files.readAllLines(file)) {
+            if (line.isBlank()) continue;
+            String[] p = line.split("\\|", -1);
+            if (p.length < 4) continue;
+            entries.add(new ProblemEntry(p[0], p[1], p[2], LocalDate.parse(p[3])));
+        }
+    }
+
+    private void save() throws IOException {
+        List<String> lines = entries.stream()
+                .map(e -> e.title() + "|" + e.pattern() + "|" + e.difficulty() + "|" + e.lastReviewed())
+                .toList();
+        Files.write(file, lines);
+    }
+}
