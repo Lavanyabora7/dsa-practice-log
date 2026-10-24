@@ -1,0 +1,21 @@
+package com.prep.log;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Path;
+import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class PracticeStoreTest {
+    @TempDir Path dir;
+
+    @Test
+    void dueIncludesOldReviews() throws Exception {
+        Path f = dir.resolve("log.json");
+        PracticeStore store = new PracticeStore(f);
+        store.add(new ProblemEntry("Two Sum", "hash-map", "easy", LocalDate.now().minusDays(5)));
+        assertEquals(1, store.dueForReview().size());
+    }
+}
